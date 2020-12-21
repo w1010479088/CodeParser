@@ -6,10 +6,13 @@ import java.util.regex.Pattern;
 public class CodeParser {
     private static final int MAX = 2;
     private final Pattern pattern = Pattern.compile("打码：(\\d+);序列:(\\d+)打码时间：00:00:(\\d+).(\\d+)");
+    private final StringBuilder builder = new StringBuilder();
     private String path;
+    private OnParseListener listener;
 
-    public CodeParser(String path) {
+    public CodeParser(String path, OnParseListener listener) {
         this.path = path;
+        this.listener = listener;
         start();
     }
 
@@ -21,18 +24,20 @@ public class CodeParser {
             while ((line = reader.readLine()) != null) {
                 String parsedResult = parse(line);
                 if (!TextUtils.isEmpty(parsedResult)) {
-                    LogUtil.log(parsedResult);
+                    log(parsedResult);
                 }
             }
         } catch (Exception ex) {
-            LogUtil.log(ex.getMessage());
+            log(ex.getMessage());
         } finally {
             try {
                 if (reader != null) {
                     reader.close();
                 }
             } catch (Exception ex) {
-                LogUtil.log(ex.getMessage());
+                log(ex.getMessage());
+            } finally {
+                listener.onResult(builder.toString());
             }
         }
     }
@@ -54,5 +59,14 @@ public class CodeParser {
             return builder.toString();
         }
         return "";
+    }
+
+    private void log(String content) {
+        builder.append(content);
+        builder.append("\n");
+    }
+
+    public interface OnParseListener {
+        void onResult(String result);
     }
 }
