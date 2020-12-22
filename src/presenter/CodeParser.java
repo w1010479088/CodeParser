@@ -36,7 +36,9 @@ public class CodeParser {
             reader = new BufferedReader(new FileReader(path));
             String line = null;
             while ((line = reader.readLine()) != null) {
-                List<CodeEntity> lineItems = parse(line);
+                String key = "GB2312";
+                String encodedLine = new String(line.getBytes(key), key);
+                List<CodeEntity> lineItems = parse(encodedLine);
                 if (!lineItems.isEmpty()) {
                     items.addAll(lineItems);
                 }
