@@ -7,6 +7,8 @@ public class CodeParser {
     private static final int MAX = 2;
     private final Pattern pattern = Pattern.compile("打码：(\\d+);序列:(\\d+)打码时间：00:00:(\\d+).(\\d+)");
     private final StringBuilder builder = new StringBuilder();
+    private final String RESULT = "8848\t1264\t1860\t3465\t1387\t1854\t6189\t1535\n" +
+            "3.99\t2.57\t3.44\t3.30\t2.03\t1.91\t1.91\t2.16";
     private String path;
     private OnParseListener listener;
 
