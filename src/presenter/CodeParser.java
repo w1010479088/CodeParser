@@ -1,18 +1,25 @@
 package presenter;
 
+import entity.CodeEntity;
 import utils.TextUtil;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CodeParser {
     private static final int MAX = 2;
-    private final Pattern pattern = Pattern.compile("打码：(\\d+);序列:(\\d+)打码时间：00:00:(\\d+).(\\d+)");
-    private final StringBuilder builder = new StringBuilder();
-    private final String RESULT = "8848\t1264\t1860\t3465\t1387\t1854\t6189\t1535\n" +
-            "3.99\t2.57\t3.44\t3.30\t2.03\t1.91\t1.91\t2.16";
+    private static final int INDEX_AT_TIME_SEC = 1;
+    private static final int INDEX_CODE = 2;
+    private static final int INDEX_IMG = 3;
+    private static final int INDEX_TIME_SEC = 4;
+    private static final int INDEX_TIME_MIL = 5;
+    private final String PATTERN = "2020/12/19 11:29:28|    打码：8848;序列:4打码时间：00:00:03.9892996";
+    private final Pattern pattern = Pattern.compile("11:29:(\\d+)\\|    打码：(\\d+);序列:(\\d+)打码时间：00:00:(\\d+).(\\d+)");
+    private final List<CodeEntity> lineResult = new ArrayList<>();
     private String path;
     private OnParseListener listener;
 
@@ -25,51 +32,71 @@ public class CodeParser {
     private void start() {
         BufferedReader reader = null;
         try {
+            List<CodeEntity> items = new ArrayList<>();
             reader = new BufferedReader(new FileReader(path));
             String line = null;
             while ((line = reader.readLine()) != null) {
-                String parsedResult = parse(line);
-                if (!TextUtil.isEmpty(parsedResult)) {
-                    log(parsedResult);
+                List<CodeEntity> lineItems = parse(line);
+                if (!lineItems.isEmpty()) {
+                    items.addAll(lineItems);
                 }
             }
+            listener.onResult(concat(items));
         } catch (Exception ex) {
-            log(ex.getMessage());
+            error(ex);
         } finally {
             try {
                 if (reader != null) {
                     reader.close();
                 }
             } catch (Exception ex) {
-                log(ex.getMessage());
-            } finally {
-                listener.onResult(builder.toString());
+                error(ex);
             }
         }
     }
 
-    private String parse(String line) {
+    private List<CodeEntity> parse(String line) {
+        lineResult.clear();
         if (!TextUtil.isEmpty(line)) {
             Matcher matcher = pattern.matcher(line);
-            StringBuilder builder = new StringBuilder();
             while (matcher.find()) {
-                String result = matcher.group(1);
-                String index = matcher.group(2);
-                String timeSecond = matcher.group(3);
-                String timeRemain = matcher.group(4);
+                String result = matcher.group(INDEX_CODE);
+                String index = matcher.group(INDEX_IMG);
+                String timeSecond = matcher.group(INDEX_TIME_SEC);
+                String timeRemain = matcher.group(INDEX_TIME_MIL);
+                String time = String.format("11:29:%s", matcher.group(INDEX_AT_TIME_SEC));
                 if (!TextUtil.isEmpty(timeRemain) && timeRemain.length() > MAX) {
                     timeRemain = timeRemain.substring(0, MAX);
                 }
-                builder.append(String.format("序号:%s, 打码:%s, 时间:%s.%s", index, result, timeSecond, timeRemain));
+                lineResult.add(new CodeEntity(index, result, String.format("%s.%s", timeSecond, timeRemain), time));
             }
-            return builder.toString();
         }
-        return "";
+        return lineResult;
     }
 
-    private void log(String content) {
-        builder.append(content);
-        builder.append("\n");
+    private String concat(List<CodeEntity> items) {
+        StringBuilder index = new StringBuilder();
+        StringBuilder code = new StringBuilder();
+        StringBuilder timeLong = new StringBuilder();
+        StringBuilder time = new StringBuilder();
+        for (CodeEntity item : items) {
+            index.append(item.index);
+            index.append("\t");
+
+            code.append(item.code);
+            code.append("\t");
+
+            timeLong.append(item.timeLong);
+            timeLong.append("\t");
+
+            time.append(item.time);
+            time.append("\t");
+        }
+        return String.format("%s\n%s\n%s\n%s", index.toString(), code.toString(), timeLong.toString(), time.toString());
+    }
+
+    private void error(Exception ex) {
+        listener.onResult(ex.getMessage());
     }
 
     public interface OnParseListener {
