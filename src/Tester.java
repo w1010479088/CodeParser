@@ -6,7 +6,9 @@ public class Tester {
         new BasePage() {
             @Override
             protected void action(String path) {
+                log("解析开始!");
                 new CodeParser(path, this::log);
+                log("解析结束!");
             }
 
             @Override

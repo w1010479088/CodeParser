@@ -58,6 +58,7 @@ public class CodeParser {
     private List<CodeEntity> parse(String line) {
         lineResult.clear();
         if (!TextUtil.isEmpty(line)) {
+            listener.onResult(line);
             Matcher matcher = pattern.matcher(line);
             while (matcher.find()) {
                 String result = matcher.group(INDEX_CODE);
@@ -70,29 +71,34 @@ public class CodeParser {
                 }
                 lineResult.add(new CodeEntity(index, result, String.format("%s.%s", timeSecond, timeRemain), time));
             }
+            listener.onResult(lineResult.isEmpty() ? "该行未发现Code" : "该行有Code!");
         }
         return lineResult;
     }
 
     private String concat(List<CodeEntity> items) {
-        StringBuilder index = new StringBuilder();
-        StringBuilder code = new StringBuilder();
-        StringBuilder timeLong = new StringBuilder();
-        StringBuilder time = new StringBuilder();
-        for (CodeEntity item : items) {
-            index.append(item.index);
-            index.append("\t");
+        if (items.isEmpty()) {
+            return "暂未发现Code!";
+        } else {
+            StringBuilder index = new StringBuilder();
+            StringBuilder code = new StringBuilder();
+            StringBuilder timeLong = new StringBuilder();
+            StringBuilder time = new StringBuilder();
+            for (CodeEntity item : items) {
+                index.append(item.index);
+                index.append("\t");
 
-            code.append(item.code);
-            code.append("\t");
+                code.append(item.code);
+                code.append("\t");
 
-            timeLong.append(item.timeLong);
-            timeLong.append("\t");
+                timeLong.append(item.timeLong);
+                timeLong.append("\t");
 
-            time.append(item.time);
-            time.append("\t");
+                time.append(item.time);
+                time.append("\t");
+            }
+            return String.format("%s\n%s\n%s\n%s", index.toString(), code.toString(), timeLong.toString(), time.toString());
         }
-        return String.format("%s\n%s\n%s\n%s", index.toString(), code.toString(), timeLong.toString(), time.toString());
     }
 
     private void error(Exception ex) {
