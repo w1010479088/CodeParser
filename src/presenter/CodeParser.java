@@ -1,3 +1,7 @@
+package presenter;
+
+import utils.TextUtil;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.regex.Matcher;
@@ -25,7 +29,7 @@ public class CodeParser {
             String line = null;
             while ((line = reader.readLine()) != null) {
                 String parsedResult = parse(line);
-                if (!TextUtils.isEmpty(parsedResult)) {
+                if (!TextUtil.isEmpty(parsedResult)) {
                     log(parsedResult);
                 }
             }
@@ -45,7 +49,7 @@ public class CodeParser {
     }
 
     private String parse(String line) {
-        if (!TextUtils.isEmpty(line)) {
+        if (!TextUtil.isEmpty(line)) {
             Matcher matcher = pattern.matcher(line);
             StringBuilder builder = new StringBuilder();
             while (matcher.find()) {
@@ -53,7 +57,7 @@ public class CodeParser {
                 String index = matcher.group(2);
                 String timeSecond = matcher.group(3);
                 String timeRemain = matcher.group(4);
-                if (!TextUtils.isEmpty(timeRemain) && timeRemain.length() > MAX) {
+                if (!TextUtil.isEmpty(timeRemain) && timeRemain.length() > MAX) {
                     timeRemain = timeRemain.substring(0, MAX);
                 }
                 builder.append(String.format("序号:%s, 打码:%s, 时间:%s.%s", index, result, timeSecond, timeRemain));
