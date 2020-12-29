@@ -1,14 +1,15 @@
 package presenter;
 
-import entity.CodeEntity;
-import utils.TextUtil;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import entity.CodeEntity;
+import utils.TextUtil;
+import utils.ThreadPool;
 
 public class CodeParser {
     private static final int MAX = 2;
@@ -30,37 +31,39 @@ public class CodeParser {
     }
 
     private void start() {
-        BufferedReader reader = null;
-        try {
-            List<CodeEntity> items = new ArrayList<>();
-            reader = new BufferedReader(new FileReader(path));
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                String key = "GB2312";
-                String encodedLine = new String(line.getBytes(key), key);
-                List<CodeEntity> lineItems = parse(encodedLine);
-                if (!lineItems.isEmpty()) {
-                    items.addAll(lineItems);
-                }
-            }
-            listener.onResult(concat(items));
-        } catch (Exception ex) {
-            error(ex);
-        } finally {
+        ThreadPool.execute(() -> {
+            BufferedReader reader = null;
             try {
-                if (reader != null) {
-                    reader.close();
+                List<CodeEntity> items = new ArrayList<>();
+                reader = new BufferedReader(new FileReader(path));
+                String line = null;
+                while ((line = reader.readLine()) != null) {
+                    String key = "GB2312";
+                    String encodedLine = new String(line.getBytes(key), key);
+                    List<CodeEntity> lineItems = parse(encodedLine);
+                    if (!lineItems.isEmpty()) {
+                        items.addAll(lineItems);
+                    }
                 }
+                listener.onResult(concat(items));
             } catch (Exception ex) {
                 error(ex);
+            } finally {
+                try {
+                    if (reader != null) {
+                        reader.close();
+                    }
+                } catch (Exception ex) {
+                    error(ex);
+                }
             }
-        }
+        });
     }
 
     private List<CodeEntity> parse(String line) {
         lineResult.clear();
         if (!TextUtil.isEmpty(line)) {
-            listener.onResult(line);
+//            listener.onResult(line);
             Matcher matcher = pattern.matcher(line);
             while (matcher.find()) {
                 String result = matcher.group(INDEX_CODE);
@@ -73,7 +76,7 @@ public class CodeParser {
                 }
                 lineResult.add(new CodeEntity(index, result, String.format("%s.%s", timeSecond, timeRemain), time));
             }
-            listener.onResult(lineResult.isEmpty() ? "该行未发现Code" : "该行有Code!");
+//            listener.onResult(lineResult.isEmpty() ? "该行未发现Code" : "该行有Code!");
         }
         return lineResult;
     }
