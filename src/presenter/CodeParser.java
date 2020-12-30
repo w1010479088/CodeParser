@@ -104,7 +104,7 @@ public class CodeParser {
             while (matcher.find()) {
                 String result = matcher.group(INDEX_CODE);
                 String index = matcher.group(INDEX_IMG);
-                String timeSecond = matcher.group(INDEX_TIME_SEC);
+                String timeSecond = String.valueOf(Integer.parseInt(matcher.group(INDEX_TIME_SEC)));
                 String timeRemain = matcher.group(INDEX_TIME_MIL);
                 String time = String.format("11:29:%s", matcher.group(INDEX_AT_TIME_SEC));
                 if (!TextUtil.isEmpty(timeRemain) && timeRemain.length() > MAX) {
