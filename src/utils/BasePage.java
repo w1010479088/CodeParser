@@ -7,7 +7,7 @@ import java.awt.event.WindowEvent;
 
 public abstract class BasePage extends JFrame {
     private JTextArea mLoggerView;
-    private StringBuilder builder = new StringBuilder();
+    private final StringBuilder builder = new StringBuilder();
 
     protected abstract void action(String path);
 

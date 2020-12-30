@@ -6,9 +6,23 @@ public class Tester {
         new BasePage() {
             @Override
             protected void action(String path) {
-                log("解析开始!");
-                new CodeParser(path, this::log);
-                log("解析结束!");
+                new CodeParser(path, new CodeParser.OnParseListener() {
+                    @Override
+                    public void onStart() {
+                        log("解析开始!");
+                    }
+
+                    @Override
+                    public void onResult(String result) {
+                        log(result);
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        log("解析结束!");
+                    }
+                });
+
             }
 
             @Override
