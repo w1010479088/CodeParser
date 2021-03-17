@@ -73,7 +73,7 @@ public class CodeParser {
         BufferedReader reader = null;
         try {
             List<CodeEntity> items = new ArrayList<>();
-            reader = new BufferedReader(new FileReader(path, StandardCharsets.UTF_8));
+            reader = new BufferedReader(new FileReader(path));
             String line = null;
             while ((line = reader.readLine()) != null) {
                 List<CodeEntity> lineItems = parse(line);
