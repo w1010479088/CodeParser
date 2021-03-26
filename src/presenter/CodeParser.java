@@ -19,13 +19,13 @@ public class CodeParser {
     private static final int INDEX_IMG = 3;
     private static final int INDEX_TIME_SEC = 4;
     private static final int INDEX_TIME_MIL = 5;
-    private final String PATTERN = "2020/12/19 11:29:28|    打码：8848;序列:4打码时间：00:00:03.9892996";
-    private final Pattern pattern = Pattern.compile("11:29:(\\d+)\\|    打码：(\\d+);序列:(\\d+)打码时间：00:00:(\\d+).(\\d+)");
     private final String rootPath;
     private final OnParseListener listener;
+    private final Pattern pattern;
 
-    public CodeParser(String rootPath, OnParseListener listener) {
+    public CodeParser(String rootPath, Pattern pattern, OnParseListener listener) {
         this.rootPath = rootPath;
+        this.pattern = pattern;
         this.listener = listener;
         start();
     }
@@ -60,20 +60,19 @@ public class CodeParser {
                     paths.addAll(subPaths);
                 }
             }
-
         }
         return paths;
     }
 
     private void parseAccount(String path) {
         File file = new File(path);
-        String name = file.getName();
+        String name = file.getAbsolutePath();
         listener.onResult("账号：" + name);
         BufferedReader reader = null;
         try {
             List<CodeEntity> items = new ArrayList<>();
             reader = new BufferedReader(new FileReader(path));
-            String line = null;
+            String line;
             while ((line = reader.readLine()) != null) {
                 List<CodeEntity> lineItems = parse(line);
                 if (!lineItems.isEmpty()) {
@@ -129,7 +128,6 @@ public class CodeParser {
 
                 code.append(item.code);
                 code.append("\t");
-
                 timeLong.append(item.timeLong);
                 timeLong.append("\t");
 
