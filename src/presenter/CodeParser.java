@@ -16,9 +16,9 @@ public class CodeParser {
     private static final int MAX = 2;
     private static final int INDEX_AT_TIME_SEC = 1;
     private static final int INDEX_CODE = 2;
-    private static final int INDEX_IMG = 3;
-    private static final int INDEX_TIME_SEC = 4;
-    private static final int INDEX_TIME_MIL = 5;
+//    private static final int INDEX_IMG = 3;
+    private static final int INDEX_TIME_SEC = 3;
+    private static final int INDEX_TIME_MIL = 4;
     private final String rootPath;
     private final OnParseListener listener;
     private final Pattern pattern;
@@ -101,14 +101,14 @@ public class CodeParser {
             Matcher matcher = pattern.matcher(line);
             while (matcher.find()) {
                 String result = matcher.group(INDEX_CODE);
-                String index = matcher.group(INDEX_IMG);
+//                String index = matcher.group(INDEX_IMG);
                 String timeSecond = String.valueOf(Integer.parseInt(matcher.group(INDEX_TIME_SEC)));
                 String timeRemain = matcher.group(INDEX_TIME_MIL);
                 String time = String.format("11:29:%s", matcher.group(INDEX_AT_TIME_SEC));
                 if (!TextUtil.isEmpty(timeRemain) && timeRemain.length() > MAX) {
                     timeRemain = timeRemain.substring(0, MAX);
                 }
-                lineResult.add(new CodeEntity(index, result, String.format("%s.%s", timeSecond, timeRemain), time));
+                lineResult.add(new CodeEntity("未知", result, String.format("%s.%s", timeSecond, timeRemain), time));
             }
         }
         return lineResult;
