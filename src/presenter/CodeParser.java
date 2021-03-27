@@ -16,16 +16,18 @@ public class CodeParser {
     private static final int MAX = 2;
     private static final int INDEX_AT_TIME_SEC = 1;
     private static final int INDEX_CODE = 2;
-//    private static final int INDEX_IMG = 3;
+    //    private static final int INDEX_IMG = 3;
     private static final int INDEX_TIME_SEC = 3;
     private static final int INDEX_TIME_MIL = 4;
     private final String rootPath;
     private final OnParseListener listener;
     private final Pattern pattern;
+    private final Pattern pattern2;
 
-    public CodeParser(String rootPath, Pattern pattern, OnParseListener listener) {
+    public CodeParser(String rootPath, Pattern pattern, Pattern pattern2, OnParseListener listener) {
         this.rootPath = rootPath;
         this.pattern = pattern;
+        this.pattern2 = pattern2;
         this.listener = listener;
         start();
     }
@@ -98,20 +100,40 @@ public class CodeParser {
     private List<CodeEntity> parse(String line) {
         List<CodeEntity> lineResult = new ArrayList<>();
         if (!TextUtil.isEmpty(line)) {
+            CodeEntity codeEntity = parseLine(line);
+            if (codeEntity != null) {
+                lineResult.add(codeEntity);
+            }
+        }
+        return lineResult;
+    }
+
+    private CodeEntity parseLine(String line) {
+        {
             Matcher matcher = pattern.matcher(line);
-            while (matcher.find()) {
+            if (matcher.find()) {
                 String result = matcher.group(INDEX_CODE);
-//                String index = matcher.group(INDEX_IMG);
                 String timeSecond = String.valueOf(Integer.parseInt(matcher.group(INDEX_TIME_SEC)));
                 String timeRemain = matcher.group(INDEX_TIME_MIL);
                 String time = String.format("11:29:%s", matcher.group(INDEX_AT_TIME_SEC));
                 if (!TextUtil.isEmpty(timeRemain) && timeRemain.length() > MAX) {
                     timeRemain = timeRemain.substring(0, MAX);
                 }
-                lineResult.add(new CodeEntity("未知", result, String.format("%s.%s", timeSecond, timeRemain), time));
+                return new CodeEntity("未知", result, String.format("%s.%s", timeSecond, timeRemain), time);
             }
         }
-        return lineResult;
+
+        {
+            Matcher matcher = pattern2.matcher(line);
+            if (matcher.find()) {
+                String result = matcher.group(INDEX_CODE);
+                String timeSecond = String.valueOf(Integer.parseInt(matcher.group(INDEX_TIME_SEC)));
+                String time = String.format("11:29:%s", matcher.group(INDEX_AT_TIME_SEC));
+                return new CodeEntity("未知", result, String.format("%s.%s", timeSecond, "0"), time);
+            }
+        }
+
+        return null;
     }
 
     private String concat(List<CodeEntity> items) {
