@@ -6,28 +6,20 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import entity.CodeEntity;
+import entity.ICodeParser;
 import utils.TextUtil;
 import utils.ThreadPool;
 
 public class CodeParser {
-    private static final int MAX = 2;
-    private static final int INDEX_AT_TIME_SEC = 1;
-    private static final int INDEX_CODE = 2;
-    //    private static final int INDEX_IMG = 3;
-    private static final int INDEX_TIME_SEC = 3;
-    private static final int INDEX_TIME_MIL = 4;
     private final String rootPath;
     private final OnParseListener listener;
-    private final Pattern pattern;
-    private final Pattern pattern2;
+    private final ICodeParser parser;
 
-    public CodeParser(String rootPath, Pattern pattern, Pattern pattern2, OnParseListener listener) {
+    public CodeParser(String rootPath, ICodeParser parser, OnParseListener listener) {
         this.rootPath = rootPath;
-        this.pattern = pattern;
-        this.pattern2 = pattern2;
+        this.parser = parser;
         this.listener = listener;
         start();
     }
@@ -110,29 +102,11 @@ public class CodeParser {
 
     private CodeEntity parseLine(String line) {
         {
-            Matcher matcher = pattern.matcher(line);
+            Matcher matcher = parser.pattern().matcher(line);
             if (matcher.find()) {
-                String result = matcher.group(INDEX_CODE);
-                String timeSecond = String.valueOf(Integer.parseInt(matcher.group(INDEX_TIME_SEC)));
-                String timeRemain = matcher.group(INDEX_TIME_MIL);
-                String time = String.format("11:29:%s", matcher.group(INDEX_AT_TIME_SEC));
-                if (!TextUtil.isEmpty(timeRemain) && timeRemain.length() > MAX) {
-                    timeRemain = timeRemain.substring(0, MAX);
-                }
-                return new CodeEntity("未知", result, String.format("%s.%s", timeSecond, timeRemain), time);
+                return new CodeEntity(parser.code(matcher), parser.time(matcher), parser.stamp(matcher));
             }
         }
-
-        {
-            Matcher matcher = pattern2.matcher(line);
-            if (matcher.find()) {
-                String result = matcher.group(INDEX_CODE);
-                String timeSecond = String.valueOf(Integer.parseInt(matcher.group(INDEX_TIME_SEC)));
-                String time = String.format("11:29:%s", matcher.group(INDEX_AT_TIME_SEC));
-                return new CodeEntity("未知", result, String.format("%s.%s", timeSecond, "0"), time);
-            }
-        }
-
         return null;
     }
 
@@ -140,23 +114,19 @@ public class CodeParser {
         if (items.isEmpty()) {
             return "暂未发现Code!";
         } else {
-            StringBuilder index = new StringBuilder();
             StringBuilder code = new StringBuilder();
             StringBuilder timeLong = new StringBuilder();
             StringBuilder time = new StringBuilder();
             for (CodeEntity item : items) {
-                index.append(item.index);
-                index.append("\t");
-
                 code.append(item.code);
                 code.append("\t");
-                timeLong.append(item.timeLong);
+                timeLong.append(item.time);
                 timeLong.append("\t");
 
-                time.append(item.time);
+                time.append(item.stamp);
                 time.append("\t");
             }
-            return String.format("%s\n%s\n%s\n%s", index.toString(), code.toString(), timeLong.toString(), time.toString());
+            return String.format("%s\n%s\n%s", code.toString(), timeLong.toString(), time.toString());
         }
     }
 

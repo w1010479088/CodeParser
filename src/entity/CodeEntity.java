@@ -1,15 +1,13 @@
 package entity;
 
 public class CodeEntity {
-    public String index;
     public String code;
-    public String timeLong;
     public String time;
+    public String stamp;
 
-    public CodeEntity(String index, String code, String timeLong, String time) {
-        this.index = index;
+    public CodeEntity(String code, String time, String stamp) {
         this.code = code;
-        this.timeLong = timeLong;
         this.time = time;
+        this.stamp = stamp;
     }
 }
