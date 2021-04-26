@@ -1,8 +1,7 @@
 package presenter;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -62,10 +61,12 @@ public class CodeParser {
         File file = new File(path);
         String name = file.getAbsolutePath();
         listener.onResult("账号：" + name);
+        InputStreamReader isr = null;
         BufferedReader reader = null;
         try {
             List<CodeEntity> items = new ArrayList<>();
-            reader = new BufferedReader(new FileReader(path));
+            isr = new InputStreamReader(new FileInputStream(path), StandardCharsets.UTF_8);
+            reader = new BufferedReader(isr);
             String line;
             while ((line = reader.readLine()) != null) {
                 List<CodeEntity> lineItems = parse(line);
@@ -80,6 +81,9 @@ public class CodeParser {
             try {
                 if (reader != null) {
                     reader.close();
+                }
+                if (isr != null) {
+                    isr.close();
                 }
             } catch (Exception ex) {
                 error(ex);
