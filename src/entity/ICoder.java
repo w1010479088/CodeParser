@@ -3,7 +3,7 @@ package entity;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public interface ICodeParser {
+public interface ICoder {
     Pattern pattern();
 
     String stamp(Matcher matcher);

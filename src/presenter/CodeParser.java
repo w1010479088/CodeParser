@@ -7,16 +7,16 @@ import java.util.List;
 import java.util.regex.Matcher;
 
 import entity.CodeEntity;
-import entity.ICodeParser;
+import entity.ICoder;
 import utils.TextUtil;
 import utils.ThreadPool;
 
 public class CodeParser {
     private final String rootPath;
     private final OnParseListener listener;
-    private final ICodeParser parser;
+    private final ICoder parser;
 
-    public CodeParser(String rootPath, ICodeParser parser, OnParseListener listener) {
+    public CodeParser(String rootPath, ICoder parser, OnParseListener listener) {
         this.rootPath = rootPath;
         this.parser = parser;
         this.listener = listener;

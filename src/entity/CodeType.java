@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 import utils.TextUtil;
 
-public enum CodeParser implements ICodeParser {
+public enum CodeType implements ICoder {
     //        11:29:58.474   2021.04.24 11:29:58输入437，完成时间2秒，1619234996910-601236-2
     Mode1("11:29:22输入367，完成时间2.5秒", Pattern.compile("11:(\\d+):(\\d+)输入(\\d+)，完成时间(\\d+).?(\\d+)?秒"));
 
@@ -47,7 +47,7 @@ public enum CodeParser implements ICodeParser {
         return timeFixed;
     }
 
-    CodeParser(String demo, Pattern pattern) {
+    CodeType(String demo, Pattern pattern) {
         this.demo = demo;
         this.pattern = pattern;
     }
