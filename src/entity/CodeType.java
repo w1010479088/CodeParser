@@ -7,7 +7,7 @@ import utils.TextUtil;
 
 public enum CodeType implements ICoder {
     //        11:29:58.474   2021.04.24 11:29:58输入437，完成时间2秒，1619234996910-601236-2
-    Mode1("11:29:22输入367，完成时间2.5秒", Pattern.compile("11:(\\d+):(\\d+)输入(\\d+)，完成时间(\\d+).?(\\d+)?秒"));
+    Mode1("11:29:22输入367，完成时间2.5秒", Pattern.compile("(11:\\d+:\\d+)输入(\\d+)，完成时间(\\d+.?\\d+?)秒"));
 
     private String demo;
     private Pattern pattern;
@@ -19,32 +19,22 @@ public enum CodeType implements ICoder {
 
     @Override
     public String stamp(Matcher matcher) {
-        return String.format("11:%s:%s", matcher.group(1), matcher.group(2));
+        return matcher.group(1);
     }
 
     @Override
     public String code(Matcher matcher) {
-        return matcher.group(3);
+        return matcher.group(2);
     }
 
     @Override
     public String time(Matcher matcher) {
-        String timeSecond = matcher.group(4);
-        String timeMillSecond = matcher.group(5);
-        String timeFixed;
-        if (TextUtil.isEmpty(timeMillSecond)) {
-            timeFixed = timeSecond;
+        String time = matcher.group(3);
+        if (Float.parseFloat(time) >= 4.99) {
+            return String.format("超时%s", time);
         } else {
-            timeFixed = String.format("%s.%s", timeSecond, timeMillSecond);
+            return time;
         }
-        try {
-            if (Integer.parseInt(timeSecond) >= 5) {
-                timeFixed = String.format("超时%s", timeFixed);
-            }
-        } catch (Exception ex) {
-            //ignore
-        }
-        return timeFixed;
     }
 
     CodeType(String demo, Pattern pattern) {
