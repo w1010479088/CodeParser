@@ -1,24 +1,25 @@
 package presenter;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 
 import entity.CodeEntity;
-import entity.ICoder;
+import entity.CodeType;
 import utils.TextUtil;
 import utils.ThreadPool;
 
 public class CodeParser {
     private final String rootPath;
     private final OnParseListener listener;
-    private final ICoder parser;
 
-    public CodeParser(String rootPath, ICoder parser, OnParseListener listener) {
+    public CodeParser(String rootPath, OnParseListener listener) {
         this.rootPath = rootPath;
-        this.parser = parser;
         this.listener = listener;
         start();
     }
@@ -106,9 +107,11 @@ public class CodeParser {
 
     private CodeEntity parseLine(String line) {
         {
-            Matcher matcher = parser.pattern().matcher(line);
-            if (matcher.find()) {
-                return new CodeEntity(parser.code(matcher), parser.time(matcher), parser.stamp(matcher));
+            for (CodeType type : CodeType.values()) {
+                Matcher matcher = type.pattern().matcher(line);
+                if (matcher.find()) {
+                    return new CodeEntity(type.code(matcher), type.time(matcher), type.stamp(matcher));
+                }
             }
         }
         return null;

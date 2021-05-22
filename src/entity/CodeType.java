@@ -3,11 +3,10 @@ package entity;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import utils.TextUtil;
-
 public enum CodeType implements ICoder {
     //        11:29:58.474   2021.04.24 11:29:58输入437，完成时间2秒，1619234996910-601236-2
-    Mode1("11:29:22输入367，完成时间2.5秒", Pattern.compile("(11:\\d+:\\d+)输入(\\d+)，完成时间(\\d+.?\\d+?)秒"));
+    Mode1("11:29:22输入367，完成时间2.5秒", Pattern.compile("(11:\\d+:\\d+)输入(\\d+)，完成时间(\\d+.?\\d+?)秒")),
+    Mode2("11:29:22输入367，完成时间2.5秒", Pattern.compile("(11:\\d+:\\d+)输入(\\d+)，完成时间(\\d+)秒"));
 
     private String demo;
     private Pattern pattern;

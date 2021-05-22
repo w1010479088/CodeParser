@@ -1,4 +1,3 @@
-import entity.CodeType;
 import utils.BasePage;
 
 public class Tester {
@@ -6,7 +5,7 @@ public class Tester {
         new BasePage() {
             @Override
             protected void action(String path) {
-                new presenter.CodeParser(path, CodeType.Mode1, new presenter.CodeParser.OnParseListener() {
+                new presenter.CodeParser(path, new presenter.CodeParser.OnParseListener() {
                     @Override
                     public void onStart() {
                         log("解析开始!");
